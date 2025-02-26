@@ -73,7 +73,7 @@ const Room = () => {
     socket.emit("clear-res", { id });
     const data = { code, userLang, id, question };
     try {
-      await axios.post("http://localhost:8000/submit", data);
+      await axios.post("https://finalyearprojectbackend-2lbw.onrender.com/submit", data);
     } catch (error) {
       console.error("Submit error:", error);
     }

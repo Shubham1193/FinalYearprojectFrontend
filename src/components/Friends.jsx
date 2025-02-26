@@ -20,7 +20,7 @@ const FriendsList = () => {
     const fetchFriends = async () => {
       try {
         const response = await fetch(
-          `http://localhost:8000/api/user/friends/${currentUser?.username}`
+          `https://finalyearprojectbackend-2lbw.onrender.com/api/user/friends/${currentUser?.username}`
         );
         const data = await response.json();
 
