@@ -15,6 +15,7 @@ const Navbar = ({
 }) => {
   const languages = [
     { value: "python", label: "Python" },
+    { value: "java", label: "Java" },
   ];
 
   const themes = [
@@ -69,17 +70,11 @@ const Navbar = ({
         </button>
       </div>
 
-      {/* Right Section: Room Code & Invite Friend */}
+    
       <div className="flex items-center space-x-4">
         <div className="flex justify-center items-center bg-gray-800 text-white px-4 py-2 rounded-lg">
-          <p>{roomid}</p>
+          <p>Room Id : {roomid}</p>
         </div>
-        <button 
-          onClick={submit} 
-          className="text-white px-4 py-2 bg-blue-500 hover:bg-blue-600 rounded-lg transition-colors"
-        >
-          Invite Friend
-        </button>
       </div>
     </div>
   );

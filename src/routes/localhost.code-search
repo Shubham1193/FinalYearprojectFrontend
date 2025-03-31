@@ -1,0 +1,91 @@
+# Query: localhost
+# ContextLines: 1
+
+22 results - 8 files
+
+webrtcfrontend-main\webrtcfrontend-main\src\assets\Vite + React.html:
+     1  <!DOCTYPE html>
+     2: <!-- saved from url=(0022)http://localhost:5173/ -->
+     3  <html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+    12      <script> window.global = window </script>
+    13:     <link rel="icon" type="image/svg+xml" href="http://localhost:5173/vite.svg">
+    14      <link rel="preconnect" href="https://fonts.googleapis.com/">
+
+  5621    <body>
+  5622: ⟪ 1517 characters skipped ⟫gray-400 dark:hover:bg-gray-700 dark:hover:text-white md:border-0 md:hover:bg-transparent md:hover:text-cyan-700 md:dark:hover:bg-transparent md:dark:hover:text-white"><a class="text-xl" href="http://localhost:5173/">Home</a></a></li><li><a class="block py-2 pl-3 pr-4 md:p-0 border-b border-gray-100 text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white md:border-0 md:hover:bg-transparent md:hover:text-cyan-700 md:dark:hover:bg-transparent md:dark:hover:text-white"><a class="text-xl" href="http://localhost:5173/create">About</a></a></li><li><a class="block py-2 pl-3 pr-4 md:p-0 border-b border-gray-100 text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white md:border-0 md:hover:bg-transparent md:hover:text-cyan-700 md:dark:hover:bg-transparent md:dark:hover:text-white"><a class="text-xl" href="http://localhost:5173/create">Room</a></a></li></ul></div></div></nav><div class="flex"><div class="w-[45%]  h-[50vh] flex flex-col justify-center items-center"><h1 class="text-4xl p-4"> Welcome To SyncCode</h1><p class="text-xl p-8 ">Introducing SyncCode, the ultimate collaborative coding platform where two users can solve DSA questions together in real-time. Featuring video conferencing and code synchronization. Experience seamless collaboration with SyncCode today.</p><div class=" w-[100%] mt-10 px-5 py-5"><button class="border-2 px-4 py-2 text-xl rounded-xl">Start learning</button></div></div><div class="w-[55%] h-[60vh] flex justify-center items-center" style=""><img src="./Vite + React_files/bg.jpg" alt="React Image" class="rounded-xl h-[60%] w-[60%]"></div></div></div></div>
+  5623      <script type="module" src="./Vite + React_files/main.jsx"></script>
+
+webrtcfrontend-main\webrtcfrontend-main\src\assets\Vite + React_files\client:
+  496  const importMetaUrl = new URL(import.meta.url);
+  497: const serverHost = "localhost:undefined/";
+  498  const socketProtocol = null || (importMetaUrl.protocol === "https:" ? "wss" : "ws");
+
+  500  const socketHost = `${null || importMetaUrl.hostname}:${hmrPort || importMetaUrl.port}${"/"}`;
+  501: const directSocketHost = "localhost:undefined/";
+  502  const base = "/" || "/";
+
+webrtcfrontend-main\webrtcfrontend-main\src\components\Friends.jsx:
+   26        try {
+   27:         const response = await fetch(`http://192.168.134.50:8000/api/user/friends/${currentUser?.username}`);
+   28          const data = await response.json();
+
+   41        try {
+   42:         const response = await fetch(`http://192.168.134.50:8000/api/user/friend-requests/${currentUser?.username}`);
+   43          const data = await response.json();
+
+   91      try {
+   92:       const response = await fetch(`http://192.168.134.50:8000/api/user/search/${searchQuery}`);
+   93        const data = await response.json();
+
+  103      try {
+  104:       const response = await fetch('http://192.168.134.50:8000/api/user/friend-request/send', {
+  105          method: 'POST',
+
+  111        // Refresh pending requests
+  112:       const requestsResponse = await fetch(`http://192.168.134.50:8000/api/user/friend-requests/${currentUser.username}`);
+  113        const requestsData = await requestsResponse.json();
+
+  128      try {
+  129:       const response = await fetch('http://192.168.134.50:8000/api/user/friend-request/accept', {
+  130          method: 'POST',
+
+  136        // Refresh friends and pending requests
+  137:       const friendsResponse = await fetch(`http://192.168.134.50:8000/api/user/friends/${currentUser.username}`);
+  138        const friendsData = await friendsResponse.json();
+  139        setFriends(friendsData.friends || []);
+  140:       const requestsResponse = await fetch(`http://192.168.134.50:8000/api/user/friend-requests/${currentUser.username}`);
+  141        const requestsData = await requestsResponse.json();
+
+  153      try {
+  154:       const response = await fetch('http://192.168.134.50:8000/api/user/friend-request/cancel', {
+  155          method: 'POST',
+
+  161        // Refresh pending requests
+  162:       const requestsResponse = await fetch(`http://192.168.134.50:8000/api/user/friend-requests/${currentUser.username}`);
+  163        const requestsData = await requestsResponse.json();
+
+webrtcfrontend-main\webrtcfrontend-main\src\components\OAuth.jsx:
+  20        console.log(resultsFromGoogle.user.displayName);
+  21:       const res = await fetch("http://192.168.134.50:8000/api/auth/google", {
+  22          method: "POST",
+
+webrtcfrontend-main\webrtcfrontend-main\src\context\SocketProvider.jsx:
+  13    // const socket = useMemo(() => io("https://webrtc-backend-t27s.onrender.com"), []);
+  14:   const socket = useMemo(() => io("http://192.168.134.50:8000"), []);
+  15    return (
+
+webrtcfrontend-main\webrtcfrontend-main\src\routes\Room.jsx:
+  87      try {
+  88:       await axios.post("http://192.168.134.50:8000/submit", data);
+  89      } catch (error) {
+
+webrtcfrontend-main\webrtcfrontend-main\src\routes\Submission.jsx:
+  27        try {
+  28:         const res = await axios.get('http://192.168.134.50:8000/api/user/submission', {
+  29            headers: { id: currentUser._id },
+
+webrtcworker-main\webrtcworker-main\ReadMe.md:
+  34  ```env
+  35: REDIS_URL=redis://localhost:6379
+  36  PORT=3000

@@ -10,28 +10,29 @@ import Friends from "../components/Friends";
 
 const Room = () => {
   const location = useLocation();
-  let ques = location.state?.question;
+  const navigate = useNavigate();
+  const socket = useSocket();
   const { roomId: id } = useSelector((state) => state.room);
 
-  const navigate = useNavigate();
+  let ques = location.state?.question;
   const [userLang, setUserLang] = useState("python");
   const [userTheme, setUserTheme] = useState("vs-dark");
   const [fontSize, setFontSize] = useState(15);
-  const [userInput, setUserInput] = useState("");
-  const options = { fontSize };
   const [code, setCode] = useState("hello world");
-  const [result, setResult] = useState();
-  const socket = useSocket();
+  const [result, setResult] = useState([]);
   const [question, setQuestion] = useState();
+  const [selectedTestCase, setSelectedTestCase] = useState(0);
+
+  const options = { fontSize };
 
   useEffect(() => {
     if (ques) {
       setQuestion(ques);
-      if (userLang === "python") {
-        setCode(ques.defaultcode.python[1]);
-      } else {
-        setCode(ques.defaultcode.java[1]);
-      }
+      setCode(
+        userLang === "python"
+          ? ques.defaultcode.python.user.join("\n")
+          : ques.defaultcode.java.user.join("\n")
+      );
       socket.emit("question", { id, ques });
     }
 
@@ -39,17 +40,23 @@ const Room = () => {
     socket.on("code-result", handleCodeResult);
     socket.on("syncQuestion", handleQuestionId);
     socket.on("clear-res", clearResult);
+    socket.on("submission-results", handleResult);
 
     return () => {
       socket.off("clear-res", clearResult);
       socket.off("syncQuestion", handleQuestionId);
       socket.off("code-result", handleCodeResult);
       socket.off("updated-code", handleUpdatedCode);
+      socket.off("submission-results", handleResult);
     };
   }, [id, ques, userLang]);
 
+  const handleResult = (results) => {
+    setResult(results);
+  };
+
   const clearResult = () => {
-    setResult();
+    setResult([]);
   };
 
   const handleQuestionId = (ques) => {
@@ -58,22 +65,27 @@ const Room = () => {
 
   const handleUpdatedCode = (code) => {
     setCode(code);
+    socket.emit("update-code", { code, id });
   };
 
-  const handleCodeResult = (result) => {
-    setResult(JSON.parse(result));
-  };
-
-  const handleCodeChange = (value) => {
-    setCode(value);
-    socket.emit("update-code", { code: value, id });
+  const handleCodeResult = (data) => {
+    setResult(JSON.parse(data));
+    console.log(data);
   };
 
   const handleSubmit = async () => {
     socket.emit("clear-res", { id });
-    const data = { code, userLang, id, question };
+
+    let hiddenCode =
+      userLang === "python"
+        ? ques.defaultcode.python.hidden.join("\n") || ""
+        : ques.defaultcode.java.hidden.join("\n") || "";
+
+    let fullCode = `${code}\n${hiddenCode}`.trim();aasidfgdfdfgdgd
+    const data = { fullCode, userLang, id, question };
+
     try {
-      await axios.post("https://finalyearprojectbackend-2lbw.onrender.com/submit", data);
+      await axios.post("http://192.168.134.50:8000/submit", data);
     } catch (error) {
       console.error("Submit error:", error);
     }
@@ -121,23 +133,44 @@ const Room = () => {
               <div className="mb-4 px-4 py-3 rounded-xl bg-[#3A3A3A] text-lg">
                 <strong>Constraints:</strong>
                 {question.constraints.map((data, index) => (
-                  <p key={index}>= {data}</p>
+                  <p key={index}>{data}</p>
                 ))}
               </div>
-              <div className="px-4 py-3 rounded-xl bg-[#3A3A3A] text-lg">
-                <div className="mb-2 font-semibold">Test Cases:</div>
-                {question.testCases.map((testCase, tcIndex) => (
-                  <div key={tcIndex} className="mb-3">
-                    <div className="underline">Test Case {tcIndex + 1}</div>
-                    {Object.keys(testCase.input).map((key) => (
-                      <div key={key}>
-                        - {key}: {JSON.stringify(testCase.input[key])}
+              {question.example && question.example.length > 0 && (
+                <div className="mb-4 px-4 py-3 rounded-xl bg-[#3A3A3A] text-lg">
+                  <strong>Examples:</strong>
+                  {question.example.map((ex, index) => (
+                    <div key={index} className="mt-4">
+                      <div className="font-semibold">Example {index + 1}:</div>
+                      <div className="mt-1">
+                        <strong>Input:</strong>
+                        <pre className="mt-1 p-2 bg-[#4A4A4A] rounded">{ex.input}</pre>
                       </div>
-                    ))}
-                    <div>- Output: {JSON.stringify(testCase.output)}</div>
-                  </div>
-                ))}
-              </div>
+                      <div className="mt-1">
+                        <strong>Output:</strong> <pre className="mt-1 p-2 bg-[#4A4A4A] rounded">{ex.input}</pre>  
+                      </div>
+                      <div className="mt-1">
+                        <strong>Explanation:</strong>
+                        {(() => {
+                          const [text, imageUrl] = ex.explanation.split("Image: ");
+                          return (
+                            <>
+                              {text && (<div className="mt-1 p-2 bg-[#4A4A4A] rounded w-auto">{text}</div>)}
+                              {imageUrl && (
+                                <img
+                                  src={imageUrl.trim()}
+                                  alt={`Example ${index + 1}`}
+                                  className="mt-2 max-w-full rounded"
+                                />
+                              )}
+                            </>
+                          );
+                        })()}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </>
           ) : (
             <div className="flex items-center justify-center h-full text-xl">
@@ -148,7 +181,7 @@ const Room = () => {
 
         {/* Center: Editor and Code Results */}
         <div className="w-1/2 h-full bg-black flex flex-col">
-          <div className="h-3/4">
+          <div className="h-3/5">
             <Editor
               options={options}
               height="100%"
@@ -156,43 +189,84 @@ const Room = () => {
               theme={userTheme}
               language={userLang}
               defaultLanguage="python"
-              defaultValue=""
-              onChange={handleCodeChange}
+              onChange={handleUpdatedCode}
               value={code}
             />
           </div>
-          <div className="h-1/4 overflow-auto text-white flex flex-wrap justify-around items-start p-2">
-            {result &&
-              result.map((res, index) => (
-                <div
-                  key={index}
-                  className="m-2 border border-white rounded-xl bg-[#2A2A2A] p-4 w-80"
-                >
-                  <div
-                    className={`mb-2 rounded-xl px-3 py-2 text-center ${
-                      res.passed ? "bg-green-500" : "bg-red-500"
+
+          {/* Test Case Results with Tabs */}
+          <div className="overflow-auto text-white p-1">
+            {/* Test Case Tabs */}
+            {result?.testCase && result.testCase.length > 0 ? (
+              <div className="flex mb-2 overflow-x-auto py-1">
+                {result.testCase.map((_, index) => (
+                  <button
+                    key={index}
+                    onClick={() => setSelectedTestCase(index)}
+                    className={`px-3 py-1 mr-2 rounded-lg flex-shrink-0 ${
+                      selectedTestCase === index
+                        ? "bg-blue-600 text-white"
+                        : result.testCase[index].expectedOutput === result.testCase[index].output
+                        ? "bg-green-900 text-white"
+                        : "bg-red-900 text-white"
                     }`}
                   >
-                    Test Case {index + 1}
-                  </div>
-                  <div className="mb-1">
-                    {Object.keys(res.testCase.input).map((key) => (
-                      <div key={key}>
-                        <span className="font-semibold">{key}:</span>{" "}
-                        {JSON.stringify(res.testCase.input[key])}
-                      </div>
-                    ))}
-                  </div>
-                  <div className="mb-1">
-                    <span className="font-semibold">Expected:</span>{" "}
-                    {JSON.stringify(res.testCase.output)}
-                  </div>
-                  <div>
-                    <span className="font-semibold">Your Output:</span>{" "}
-                    {res.youroutput}
-                  </div>
+                    Test {index + 1}
+                  </button>
+                ))}
+              </div>
+            ) : null}
+
+            {/* Selected Test Case Details */}
+            {result?.testCase && result.testCase.length > 0 ? (
+              <div
+                className={`border rounded-xl p-3 mb-2 ${
+                  result.testCase[selectedTestCase].expectedOutput ===
+                  result.testCase[selectedTestCase].output
+                    ? "border-green-500 bg-[#1f2d1f]"
+                    : "border-red-500 bg-[#2d1f1f]"
+                }`}
+              >
+                <div className="text-m">
+                  Test Case {selectedTestCase + 1}:{" "}
+                  <span
+                    className={
+                      result.testCase[selectedTestCase].expectedOutput ===
+                      result.testCase[selectedTestCase].output
+                        ? "text-green-500"
+                        : "text-red-500"
+                    }
+                  >
+                    {result.testCase[selectedTestCase].expectedOutput ===
+                    result.testCase[selectedTestCase].output
+                      ? "Passed"
+                      : "Failed"}
+                  </span>
                 </div>
-              ))}
+                <div className="mt-2">
+                  <span className="font-semibold">Input:</span>{" "}
+                  <pre className="whitespace-pre-wrap">
+                    {result.testCase[selectedTestCase].input}
+                  </pre>
+                </div>
+                <div>
+                  <span className="font-semibold">Expected Output:</span>{" "}
+                  <span className="text-green-400">
+                    {result.testCase[selectedTestCase].expectedOutput}
+                  </span>
+                </div>
+                <div>
+                  <span className="font-semibold">Your Output:</span>{" "}
+                  <span className="text-yellow-400">
+                    {result.testCase[selectedTestCase].output}
+                  </span>
+                </div>
+              </div>
+            ) : (
+              <div className="text-center text-gray-400 font-bold">
+                Run your code to see test results
+              </div>
+            )}
           </div>
         </div>
 

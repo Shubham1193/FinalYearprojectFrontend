@@ -10,11 +10,11 @@ const Home = () => {
   const socket = useSocket();
   const { currentUser } = useSelector((state) => state.user);
 
-  useEffect(() => {
-    if (socket && currentUser?.username) {
-      socket.emit("online", { username: currentUser.username });
-    }
-  }, [socket, currentUser]);
+  // useEffect(() => {
+  //   if (socket && currentUser?.username) {
+  //     socket.emit("online", { username: currentUser.username });
+  //   }
+  // }, [socket, currentUser]);
 
   return (
     <div className="h-[100vh] bg-[#1A1A2E] text-white">
