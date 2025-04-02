@@ -81,7 +81,7 @@ const Room = () => {
         ? ques.defaultcode.python.hidden.join("\n") || ""
         : ques.defaultcode.java.hidden.join("\n") || "";
 
-    let fullCode = `${code}\n${hiddenCode}`.trim();aasidfgdfdfgdgd
+    let fullCode = `${code}\n${hiddenCode}`.trim();
     const data = { fullCode, userLang, id, question };
 
     try {
