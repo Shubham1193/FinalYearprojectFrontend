@@ -13,7 +13,7 @@ const Videos = () => {
 
     // Refs for local and remote video elements
     const remoteVideoRef = useRef(null);
-    const currentUserVideoRef = useRef();
+    const currentUserVideoRef = useRef(null); // Fixed: Added null initialization for consistency
 
     // Hooks for socket, navigation, and dispatching actions
     const socket = useSocket();
@@ -31,7 +31,6 @@ const Videos = () => {
             const peer = new Peer();
             peer.on('open', (peerId) => {
                 dispatch(setPeerId(peerId));
-                // Emit join room event with room ID, peer ID, and username
                 socket.emit('join room', { id, peerId, username: localStorage.getItem('access_token') });
             });
             dispatch(setPeerInstance(peer));
@@ -44,17 +43,16 @@ const Videos = () => {
                     video: true,
                     audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true }
                 }).then((mediaStream) => {
-                    // Set local video stream and mute to prevent echo
                     currentUserVideoRef.current.srcObject = mediaStream;
                     currentUserVideoRef.current.muted = true;
+                    console.log('Local video muted on call answer:', currentUserVideoRef.current.muted);
                     currentUserVideoRef.current.play();
                     call.answer(mediaStream); // Answer the call with local stream
                     call.on('stream', (remoteStream) => {
-                        // Display remote user's video stream
                         remoteVideoRef.current.srcObject = remoteStream;
                         remoteVideoRef.current.play();
                     });
-                });
+                }).catch((err) => console.error('Error accessing media devices:', err));
             });
         }
 
@@ -63,18 +61,35 @@ const Videos = () => {
         socket.on('room full', handleRoomsfull); // Handle room full scenario
         socket.on('userdisconnect', handleUserDisconnect); // Handle user disconnect
 
-        // Cleanup socket listeners on unmount
+        // Cleanup on unmount
         return () => {
             socket.off('userdisconnect', handleUserDisconnect);
             socket.off('room full', handleRoomsfull);
+            socket.off('other user');
+            // Cleanup peer instance and streams if component unmounts
+            if (peerInstance) {
+                peerInstance.off('call');
+            }
+            if (currentUserVideoRef.current && currentUserVideoRef.current.srcObject) {
+                currentUserVideoRef.current.pause();
+                currentUserVideoRef.current.srcObject.getTracks().forEach(track => track.stop());
+                currentUserVideoRef.current.srcObject = null;
+            }
+            if (remoteVideoRef.current && remoteVideoRef.current.srcObject) {
+                remoteVideoRef.current.pause();
+                remoteVideoRef.current.srcObject.getTracks().forEach(track => track.stop());
+                remoteVideoRef.current.srcObject = null;
+            }
         };
-    }, [peerInstance, socket]);
+    }, [peerInstance, socket, dispatch, id]);
 
     // Handle user disconnect by stopping remote video stream
     const handleUserDisconnect = (peerid) => {
         if (remoteVideoRef.current && remoteVideoRef.current.srcObject) {
+            remoteVideoRef.current.pause();
             remoteVideoRef.current.srcObject.getTracks().forEach(track => track.stop());
             remoteVideoRef.current.srcObject = null;
+            console.log('Remote stream stopped due to user disconnect');
         }
     };
 
@@ -91,34 +106,38 @@ const Videos = () => {
             audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true }
         }).then((mediaStream) => {
             currentUserVideoRef.current.srcObject = mediaStream;
-            currentUserVideoRef.current.muted = true; // Mute local audio to prevent echo
+            currentUserVideoRef.current.muted = true;
+            console.log('Local video muted on call initiation:', currentUserVideoRef.current.muted);
             currentUserVideoRef.current.play();
             const call = peerInstance.call(remotePeerId, mediaStream);
             call.on('stream', (remoteStream) => {
                 remoteVideoRef.current.srcObject = remoteStream;
                 remoteVideoRef.current.play();
             });
-        });
+        }).catch((err) => console.error('Error accessing media devices:', err));
     };
 
     // Leave the room and clean up resources
     const leaveRoom = () => {
         socket.emit('disco', { peerId, token: localStorage.getItem('access_token') });
-        dispatch(clearPeerState());
-        dispatch(clearRoomId());
-        // Stop local video stream
         if (currentUserVideoRef.current && currentUserVideoRef.current.srcObject) {
+            currentUserVideoRef.current.pause();
             currentUserVideoRef.current.srcObject.getTracks().forEach(track => track.stop());
+            currentUserVideoRef.current.srcObject = null;
+            console.log('Local stream stopped on leave');
         }
-        // Stop remote video stream
         if (remoteVideoRef.current && remoteVideoRef.current.srcObject) {
+            remoteVideoRef.current.pause();
             remoteVideoRef.current.srcObject.getTracks().forEach(track => track.stop());
+            remoteVideoRef.current.srcObject = null;
+            console.log('Remote stream stopped on leave');
         }
-        // Destroy peer instance and emit leave room event
         if (peerInstance) {
             peerInstance.destroy();
-            dispatch(clearPeerState());
+            console.log('Peer instance destroyed');
         }
+        dispatch(clearPeerState());
+        dispatch(clearRoomId());
         socket.emit('leave room', { roomId: id, peerId });
         navigate('/create');
     };
@@ -129,9 +148,12 @@ const Videos = () => {
         if (mediaStream) {
             const audioTracks = mediaStream.getAudioTracks();
             audioTracks.forEach(track => {
-                track.enabled = !track.enabled; // Toggle audio track
+                track.enabled = !track.enabled;
+                console.log('Audio track enabled:', track.enabled);
             });
-            setIsMuted(!isMuted); // Update mute state
+            setIsMuted(!isMuted);
+        } else {
+            console.log('No media stream to toggle mute');
         }
     };
 
@@ -141,9 +163,12 @@ const Videos = () => {
         if (mediaStream) {
             const videoTracks = mediaStream.getVideoTracks();
             videoTracks.forEach(track => {
-                track.enabled = !track.enabled; // Toggle video track
+                track.enabled = !track.enabled;
+                console.log('Video track enabled:', track.enabled);
             });
-            setIsVideoOff(!isVideoOff); // Update video state
+            setIsVideoOff(!isVideoOff);
+        } else {
+            console.log('No media stream to toggle video');
         }
     };
 
@@ -155,6 +180,7 @@ const Videos = () => {
                     ref={currentUserVideoRef}
                     muted
                     className='rounded-lg border-gray-300 h-[25vh] mt-3'
+                    autoPlay
                 ></video>
             </div>
             {/* Remote video display */}
@@ -162,6 +188,7 @@ const Videos = () => {
                 <video
                     ref={remoteVideoRef}
                     className='rounded-lg border-gray-300 h-[25vh] mt-3'
+                    autoPlay
                 ></video>
             </div>
             {/* Control buttons */}
