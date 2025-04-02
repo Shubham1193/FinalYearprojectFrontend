@@ -39,7 +39,7 @@ const FriendsList = () => {
   useEffect(() => {
     const fetchPendingRequests = async () => {
       try {
-        const response = await fetch(`http://192.168.134.50:8000/api/user/friend-requests/${currentUser?.username}`);
+        const response = await fetch(`https://finalyearprojectbackend-2lbw.onrender.com/api/user/friend-requests/${currentUser?.username}`);
         const data = await response.json();
         if (!response.ok) throw new Error(data.message || 'Failed to fetch requests');
         setPendingRequests({
@@ -89,7 +89,7 @@ const FriendsList = () => {
   const handleSearch = async () => {
     if (!searchQuery.trim()) return;
     try {
-      const response = await fetch(`http://192.168.134.50:8000/api/user/search/${searchQuery}`);
+      const response = await fetch(`https://finalyearprojectbackend-2lbw.onrender.com/api/user/search/${searchQuery}`);
       const data = await response.json();
       if (!response.ok) throw new Error(data.message || 'Failed to search users');
       setSearchResults(data);
@@ -101,7 +101,7 @@ const FriendsList = () => {
   // Send a friend request
   const handleSendRequest = async (receiver) => {
     try {
-      const response = await fetch('http://192.168.134.50:8000/api/user/friend-request/send', {
+      const response = await fetch('https://finalyearprojectbackend-2lbw.onrender.com/api/user/friend-request/send', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ sender: currentUser.username, receiver }),
@@ -109,7 +109,7 @@ const FriendsList = () => {
       const data = await response.json();
       if (!response.ok) throw new Error(data.message || 'Failed to send request');
       // Refresh pending requests
-      const requestsResponse = await fetch(`http://192.168.134.50:8000/api/user/friend-requests/${currentUser.username}`);
+      const requestsResponse = await fetch(`https://finalyearprojectbackend-2lbw.onrender.com/api/user/friend-requests/${currentUser.username}`);
       const requestsData = await requestsResponse.json();
       setPendingRequests({
         sent: requestsData.sent || [],
@@ -126,7 +126,7 @@ const FriendsList = () => {
   // Accept a friend request
   const handleAcceptRequest = async (sender) => {
     try {
-      const response = await fetch('http://192.168.134.50:8000/api/user/friend-request/accept', {
+      const response = await fetch('https://finalyearprojectbackend-2lbw.onrender.com/api/user/friend-request/accept', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ acceptor: currentUser.username, sender }),
@@ -134,10 +134,10 @@ const FriendsList = () => {
       const data = await response.json();
       if (!response.ok) throw new Error(data.message || 'Failed to accept request');
       // Refresh friends and pending requests
-      const friendsResponse = await fetch(`http://192.168.134.50:8000/api/user/friends/${currentUser.username}`);
+      const friendsResponse = await fetch(`https://finalyearprojectbackend-2lbw.onrender.com/api/user/friends/${currentUser.username}`);
       const friendsData = await friendsResponse.json();
       setFriends(friendsData.friends || []);
-      const requestsResponse = await fetch(`http://192.168.134.50:8000/api/user/friend-requests/${currentUser.username}`);
+      const requestsResponse = await fetch(`https://finalyearprojectbackend-2lbw.onrender.com/api/user/friend-requests/${currentUser.username}`);
       const requestsData = await requestsResponse.json();
       setPendingRequests({
         sent: requestsData.sent || [],
@@ -151,7 +151,7 @@ const FriendsList = () => {
   // Cancel or reject a friend request
   const handleCancelRequest = async (user) => {
     try {
-      const response = await fetch('http://192.168.134.50:8000/api/user/friend-request/cancel', {
+      const response = await fetch('https://finalyearprojectbackend-2lbw.onrender.com/api/user/friend-request/cancel', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ sender: currentUser.username, receiver: user }),
@@ -159,7 +159,7 @@ const FriendsList = () => {
       const data = await response.json();
       if (!response.ok) throw new Error(data.message || 'Failed to cancel request');
       // Refresh pending requests
-      const requestsResponse = await fetch(`http://192.168.134.50:8000/api/user/friend-requests/${currentUser.username}`);
+      const requestsResponse = await fetch(`https://finalyearprojectbackend-2lbw.onrender.com/api/user/friend-requests/${currentUser.username}`);
       const requestsData = await requestsResponse.json();
       setPendingRequests({
         sent: requestsData.sent || [],
