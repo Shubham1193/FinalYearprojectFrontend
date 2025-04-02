@@ -3,16 +3,12 @@ import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { setRoomId, clearRoomId } from "../redux/room/roomSlice";
 import { clearPeerState } from "../redux/peer/peerSlice";
-import { useSocket } from "../context/SocketProvider";
 import MainNavbar from "../components/MainNavbar";
 import Friends from "../components/Friends";
-// import createRoomImage from "../assets/createRoom.jpeg"; // Optional image
 
 const CreateRoom = () => {
-  const { currentUser } = useSelector((state) => state.user);
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const socket = useSocket();
   const [joinRoomCode, setJoinRoomCode] = useState("");
 
   useEffect(() => {

@@ -25,7 +25,7 @@ const SubmissionDashboard = () => {
   useEffect(() => {
     const fetchSubmissions = async () => {
       try {
-        const res = await axios.get('http://192.168.134.50:8000/api/user/submission', {
+        const res = await axios.get('https://finalyearprojectbackend-2lbw.onrender.com/api/user/submission', {
           headers: { id: currentUser._id },
         });
         setSubmissions(res.data);

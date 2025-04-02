@@ -85,7 +85,7 @@ const Room = () => {
     const data = { fullCode, userLang, id, question };
 
     try {
-      await axios.post("http://192.168.134.50:8000/submit", data);
+      await axios.post("https://finalyearprojectbackend-2lbw.onrender.com/submit", data);
     } catch (error) {
       console.error("Submit error:", error);
     }
@@ -272,7 +272,7 @@ const Room = () => {
 
         {/* Right Sidebar: Videos */}
         <div className="w-1/4 h-full p-2">
-          <Videos id={id} />
+          <Videos/>
         </div>
       </div>
       <Friends />

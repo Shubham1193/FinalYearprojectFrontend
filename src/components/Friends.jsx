@@ -24,7 +24,7 @@ const FriendsList = () => {
   useEffect(() => {
     const fetchFriends = async () => {
       try {
-        const response = await fetch(`http://192.168.134.50:8000/api/user/friends/${currentUser?.username}`);
+        const response = await fetch(`https://finalyearprojectbackend-2lbw.onrender.com/api/user/friends/${currentUser?.username}`);
         const data = await response.json();
         if (!response.ok) throw new Error(data.message || 'Failed to fetch friends');
         setFriends(data.friends || []);

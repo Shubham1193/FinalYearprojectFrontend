@@ -32,7 +32,7 @@ const Problems = () => {
   useEffect(() => {
     const fetchProblems = async () => {
       try {
-        const response = await axios.get("http://192.168.134.50:8000/api/user/problems");
+        const response = await axios.get("https://finalyearprojectbackend-2lbw.onrender.com/api/user/problems");
         setQuestions(response.data);
         console.log(response.data)
         setFilteredQuestions(response.data);

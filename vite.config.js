@@ -10,6 +10,5 @@ export default defineConfig({
   //     key: fs.readFileSync('./key.pem'),
   //     cert: fs.readFileSync('./cert.pem'),
   //   },
-    
   // },
 })

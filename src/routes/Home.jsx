@@ -1,20 +1,10 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
 import bg from '../assets/bg.jpg';
 import MainNavbar from '../components/MainNavbar';
 import Friends from '../components/Friends';
-import { useSelector } from 'react-redux';
-import { useSocket } from "../context/SocketProvider";
 
 const Home = () => {
-  const socket = useSocket();
-  const { currentUser } = useSelector((state) => state.user);
-
-  // useEffect(() => {
-  //   if (socket && currentUser?.username) {
-  //     socket.emit("online", { username: currentUser.username });
-  //   }
-  // }, [socket, currentUser]);
 
   return (
     <div className="h-[100vh] bg-[#1A1A2E] text-white">

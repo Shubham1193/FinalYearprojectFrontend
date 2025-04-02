@@ -18,7 +18,7 @@ export default function OAuth() {
     try {
       const resultsFromGoogle = await signInWithPopup(auth, provider);
       console.log(resultsFromGoogle.user.displayName);
-      const res = await fetch("http://192.168.134.50:8000/api/auth/google", {
+      const res = await fetch("https://finalyearprojectbackend-2lbw.onrender.com/api/auth/google", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
