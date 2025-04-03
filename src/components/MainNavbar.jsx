@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import profile from '../assets/profile.png';
 import { useSelector, useDispatch } from 'react-redux';
@@ -8,6 +8,8 @@ const MainNavbar = () => {
   const { currentUser } = useSelector((state) => state.user);
   const dispatch = useDispatch();
   const [dropdownOpen, setDropdownOpen] = useState(false);
+
+
 
   const handleProfileClick = () => {
     setDropdownOpen(!dropdownOpen);
@@ -47,10 +49,15 @@ const MainNavbar = () => {
         ) : (
           <div>
             <img
-              src={profile}
+              src={
+                currentUser.profilePicture
+                  ? `https://finalyearprojectbackend-2lbw.onrender.com/proxy-image?url=${encodeURIComponent(currentUser.profilePicture)}`
+                  : profile
+              }
               alt="Profile"
               className="w-10 h-10 rounded-full object-cover cursor-pointer"
               onClick={handleProfileClick}
+              onError={(e) => (e.target.src = profile)}
             />
             {dropdownOpen && (
               <div className="absolute right-0 mt-2 w-40 bg-[#2A2F4A] rounded-md shadow-lg z-10">

@@ -24,10 +24,12 @@ const FriendsList = () => {
   useEffect(() => {
     const fetchFriends = async () => {
       try {
-        const response = await fetch(`https://finalyearprojectbackend-2lbw.onrender.com/api/user/friends/${currentUser?.username}`);
+        // const response = await fetch(`https://finalyearprojectbackend-2lbw.onrender.com/api/user/friends/${currentUser?.username}`);
+        const response = await fetch(`https://finalyearprojectbackend-2lbw.onrender.com/api/user/friends/${currentUser?.username}`)
         const data = await response.json();
         if (!response.ok) throw new Error(data.message || 'Failed to fetch friends');
         setFriends(data.friends || []);
+        console.log(data)
       } catch (err) {
         console.error('Error fetching friends:', err);
       }
@@ -39,13 +41,15 @@ const FriendsList = () => {
   useEffect(() => {
     const fetchPendingRequests = async () => {
       try {
-        const response = await fetch(`https://finalyearprojectbackend-2lbw.onrender.com/api/user/friend-requests/${currentUser?.username}`);
+        // const response = await fetch(`https://finalyearprojectbackend-2lbw.onrender.com/api/user/friend-requests/${currentUser?.username}`);
+        const response = await fetch(`https://finalyearprojectbackend-2lbw.onrender.com/api/user/friend-requests/${currentUser?.username}`)
         const data = await response.json();
         if (!response.ok) throw new Error(data.message || 'Failed to fetch requests');
         setPendingRequests({
           sent: data.sent || [],
           received: data.received || [],
         });
+        console.log(data)
       } catch (err) {
         console.error('Error fetching pending requests:', err);
       }
@@ -101,6 +105,7 @@ const FriendsList = () => {
   // Send a friend request
   const handleSendRequest = async (receiver) => {
     try {
+      // const response = await fetch('https://finalyearprojectbackend-2lbw.onrender.com/api/user/friend-request/send', {
       const response = await fetch('https://finalyearprojectbackend-2lbw.onrender.com/api/user/friend-request/send', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -111,6 +116,7 @@ const FriendsList = () => {
       // Refresh pending requests
       const requestsResponse = await fetch(`https://finalyearprojectbackend-2lbw.onrender.com/api/user/friend-requests/${currentUser.username}`);
       const requestsData = await requestsResponse.json();
+      console.log(requestsData)
       setPendingRequests({
         sent: requestsData.sent || [],
         received: requestsData.received || [],
@@ -151,7 +157,7 @@ const FriendsList = () => {
   // Cancel or reject a friend request
   const handleCancelRequest = async (user) => {
     try {
-      const response = await fetch('https://finalyearprojectbackend-2lbw.onrender.com/api/user/friend-request/cancel', {
+      const response = await fetch('hhttps://finalyearprojectbackend-2lbw.onrender.com/api/user/friend-request/cancel', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ sender: currentUser.username, receiver: user }),
@@ -238,9 +244,8 @@ const FriendsList = () => {
           <div className="flex border-b border-gray-700">
             <button
               onClick={() => setActiveTab('friends')}
-              className={`flex-1 py-2 font-medium text-sm ${
-                activeTab === 'friends' ? 'text-indigo-400 border-b-2 border-indigo-400' : 'text-gray-400 hover:text-gray-200'
-              }`}
+              className={`flex-1 py-2 font-medium text-sm ${activeTab === 'friends' ? 'text-indigo-400 border-b-2 border-indigo-400' : 'text-gray-400 hover:text-gray-200'
+                }`}
             >
               Friends
               {getTotalUnreadCount() > 0 && (
@@ -249,9 +254,8 @@ const FriendsList = () => {
             </button>
             <button
               onClick={() => setActiveTab('requests')}
-              className={`flex-1 py-2 font-medium text-sm ${
-                activeTab === 'requests' ? 'text-indigo-400 border-b-2 border-indigo-400' : 'text-gray-400 hover:text-gray-200'
-              }`}
+              className={`flex-1 py-2 font-medium text-sm ${activeTab === 'requests' ? 'text-indigo-400 border-b-2 border-indigo-400' : 'text-gray-400 hover:text-gray-200'
+                }`}
             >
               Requests
               {pendingRequests.received.length > 0 && (
@@ -260,9 +264,8 @@ const FriendsList = () => {
             </button>
             <button
               onClick={() => setActiveTab('search')}
-              className={`flex-1 py-2 font-medium text-sm ${
-                activeTab === 'search' ? 'text-indigo-400 border-b-2 border-indigo-400' : 'text-gray-400 hover:text-gray-200'
-              }`}
+              className={`flex-1 py-2 font-medium text-sm ${activeTab === 'search' ? 'text-indigo-400 border-b-2 border-indigo-400' : 'text-gray-400 hover:text-gray-200'
+                }`}
             >
               Search
             </button>
@@ -285,36 +288,32 @@ const FriendsList = () => {
                       <div className="flex items-center">
                         <span className="font-medium">{chatOpen}</span>
                         <span
-                          className={`w-2 h-2 rounded-full ml-2 ${
-                            onlineFriends.includes(chatOpen) ? 'bg-green-500' : 'bg-gray-500'
-                          }`}
+                          className={`w-2 h-2 rounded-full ml-2 ${onlineFriends.includes(chatOpen) ? 'bg-green-500' : 'bg-gray-500'
+                            }`}
                         />
                       </div>
                     </div>
-                    
+
                     {/* Messages container */}
                     <div className="flex-1 overflow-y-auto p-3 bg-gray-800">
                       {messages[chatOpen]?.length ? (
                         messages[chatOpen].map((msg, index) => (
                           <div
                             key={index}
-                            className={`mb-2 max-w-3/4 ${
-                              msg.sender === currentUser.username ? 'ml-auto' : 'mr-auto'
-                            }`}
+                            className={`mb-2 max-w-3/4 ${msg.sender === currentUser.username ? 'ml-auto' : 'mr-auto'
+                              }`}
                           >
                             <div
-                              className={`px-3 py-2 rounded-lg ${
-                                msg.sender === currentUser.username
-                                  ? 'bg-indigo-600 text-white rounded-br-none'
-                                  : 'bg-gray-700 text-gray-100 rounded-bl-none'
-                              }`}
+                              className={`px-3 py-2 rounded-lg ${msg.sender === currentUser.username
+                                ? 'bg-indigo-600 text-white rounded-br-none'
+                                : 'bg-gray-700 text-gray-100 rounded-bl-none'
+                                }`}
                             >
                               {msg.message}
                             </div>
                             <div
-                              className={`text-xs mt-1 text-gray-500 ${
-                                msg.sender === currentUser.username ? 'text-right' : 'text-left'
-                              }`}
+                              className={`text-xs mt-1 text-gray-500 ${msg.sender === currentUser.username ? 'text-right' : 'text-left'
+                                }`}
                             >
                               {msg.sender}
                             </div>
@@ -326,7 +325,7 @@ const FriendsList = () => {
                         </div>
                       )}
                     </div>
-                    
+
                     {/* Message input */}
                     <form onSubmit={handleSendMessage} className="p-2 bg-gray-800 border-t border-gray-700 flex">
                       <input
@@ -358,29 +357,42 @@ const FriendsList = () => {
                         {friends.map((friend) => (
                           <li
                             key={friend}
-                            onClick={() => handleChatOpen(friend)}
+                            onClick={() => handleChatOpen(friend.username)}
                             className="p-3 flex items-center justify-between hover:bg-gray-800 cursor-pointer border-b border-gray-800"
                           >
                             <div className="flex items-center">
-                              <div className="w-8 h-8 bg-indigo-500 rounded-full flex items-center justify-center mr-3">
-                                {friend.charAt(0).toUpperCase()}
+                              <div className="w-8 h-8 bg-gray-700 rounded-full flex items-center justify-center mr-2 overflow-hidden">
+                                {friend.profilePicture ? (
+                                  <img
+                                    src={
+                                      friend.profilePicture
+                                        ? `https://finalyearprojectbackend-2lbw.onrender.com/proxy-image?url=${encodeURIComponent(friend.profilePicture)}`
+                                        : profile
+                                    }
+                                    alt={friend.username}
+                                    className="w-8 h-8 rounded-full object-cover"
+                                  />
+                                ) : (
+                                  <span className="text-white">
+                                    {friend.username.charAt(0).toUpperCase()}
+                                  </span>
+                                )}
                               </div>
                               <div>
-                                <p className="font-medium">{friend}</p>
+                                <p className="font-medium">{friend.username}</p>
                                 <p className="text-xs text-gray-400">
-                                  {onlineFriends.includes(friend) ? 'Online' : 'Offline'}
+                                  {onlineFriends.includes(friend.username) ? 'Online' : 'Offline'}
                                 </p>
                               </div>
                             </div>
                             <div className="flex items-center">
                               <span
-                                className={`w-3 h-3 rounded-full ${
-                                  onlineFriends.includes(friend) ? 'bg-green-500' : 'bg-gray-500'
-                                }`}
+                                className={`w-3 h-3 rounded-full ${onlineFriends.includes(friend.username) ? 'bg-green-500' : 'bg-gray-500'
+                                  }`}
                               />
-                              {unreadCounts[friend] > 0 && (
+                              {unreadCounts[friend.username] > 0 && (
                                 <span className="ml-2 bg-red-500 text-white rounded-full px-2 py-0.5 text-xs">
-                                  {unreadCounts[friend]}
+                                  {unreadCounts[friend.username]}
                                 </span>
                               )}
                             </div>
@@ -405,24 +417,38 @@ const FriendsList = () => {
                     <ul>
                       {pendingRequests.received.map((sender) => (
                         <li
-                          key={sender}
+                          key={sender._id}
                           className="p-2 rounded mb-1 bg-gray-800 flex items-center justify-between"
                         >
                           <div className="flex items-center">
-                            <div className="w-8 h-8 bg-indigo-500 rounded-full flex items-center justify-center mr-2">
-                              {sender.charAt(0).toUpperCase()}
+                            <div className="w-8 h-8 bg-gray-700 rounded-full flex items-center justify-center mr-2 overflow-hidden">
+                              {sender.profilePicture ? (
+                                <img
+                                  src={
+                                    sender.profilePicture
+                                      ? `https://finalyearprojectbackend-2lbw.onrender.com/proxy-image?url=${encodeURIComponent(sender.profilePicture)}`
+                                      : profile
+                                  }
+                                  alt={sender.username}
+                                  className="w-full h-full object-cover rounded-full"
+                                />
+                              ) : (
+                                <span className="text-white">
+                                  {sender.username.charAt(0).toUpperCase()}
+                                </span>
+                              )}
                             </div>
-                            <span>{sender}</span>
+                            <span>{sender.username}</span>
                           </div>
                           <div className="flex">
                             <button
-                              onClick={() => handleAcceptRequest(sender)}
+                              onClick={() => handleAcceptRequest(sender.username)}
                               className="bg-green-600 text-white px-2 py-1 rounded mr-1 text-xs hover:bg-green-700 transition-colors"
                             >
                               Accept
                             </button>
                             <button
-                              onClick={() => handleCancelRequest(sender)}
+                              onClick={() => handleCancelRequest(sender.username)}
                               className="bg-red-600 text-white px-2 py-1 rounded text-xs hover:bg-red-700 transition-colors"
                             >
                               Reject
@@ -443,19 +469,34 @@ const FriendsList = () => {
                   </h3>
                   {pendingRequests.sent.length > 0 ? (
                     <ul>
-                      {pendingRequests.sent.map((receiver) => (
+                      {pendingRequests.sent.map((receiver) => ( // name receiver because it is detail of who received
                         <li
-                          key={receiver}
+                          key={receiver._id}
                           className="p-2 rounded mb-1 bg-gray-800 flex items-center justify-between"
                         >
                           <div className="flex items-center">
-                            <div className="w-8 h-8 bg-gray-700 rounded-full flex items-center justify-center mr-2">
-                              {receiver.charAt(0).toUpperCase()}
+                            <div className="w-8 h-8 bg-gray-700 rounded-full flex items-center justify-center mr-2 overflow-hidden">
+                              {receiver.profilePicture ? (
+                                <img
+                                  src={
+                                    receiver.profilePicture
+                                      ? `https://finalyearprojectbackend-2lbw.onrender.com/proxy-image?url=${encodeURIComponent(receiver.profilePicture)}`
+                                      : profile
+                                  }
+                                  alt={receiver.username}
+                                  className="w-8 h-8 rounded-full object-cover"
+                                />
+                              ) : (
+                                <span className="text-white">
+                                  {receiver.username.charAt(0).toUpperCase()}
+                                </span>
+                              )}
                             </div>
-                            <span>{receiver}</span>
+
+                            <span>{receiver.username}</span>
                           </div>
                           <button
-                            onClick={() => handleCancelRequest(receiver)}
+                            onClick={() => handleCancelRequest(receiver.username)}
                             className="bg-yellow-600 text-white px-2 py-1 rounded text-xs hover:bg-yellow-700 transition-colors"
                           >
                             Cancel
@@ -491,7 +532,7 @@ const FriendsList = () => {
                     </svg>
                   </button>
                 </div>
-                
+
                 {/* Search results */}
                 <div className="overflow-y-auto max-h-48">
                   {searchResults.length > 0 ? (
@@ -502,27 +543,38 @@ const FriendsList = () => {
                           className="p-2 rounded mb-1 bg-gray-800 flex items-center justify-between"
                         >
                           <div className="flex items-center">
-                            <div className="w-8 h-8 bg-gray-700 rounded-full flex items-center justify-center mr-2">
-                              {user.username.charAt(0).toUpperCase()}
-                            </div>
-                            <span>{user.username}</span>
+                            {user.profilePicture ? (
+                              <img
+                                src={`https://finalyearprojectbackend-2lbw.onrender.com/proxy-image?url=${encodeURIComponent(user.profilePicture)}`}
+                                alt={user.username}
+                                className="w-8 h-8 rounded-full object-cover"
+                                onError={(e) => (e.target.src = profile)} // Fallback to default image
+                              />
+                            ) : (
+                              <span className="w-8 h-8 rounded-full bg-gray-600 flex items-center justify-center text-white font-bold">
+                                {user.username.charAt(0).toUpperCase()}
+                              </span>
+                            )}
+                            <span className="ml-2 text-white">{user.username}</span>
                           </div>
-                          {!friends.includes(user.username) && 
-                            !pendingRequests.sent.includes(user.username) && 
-                            user.username !== currentUser?.username && (
-                            <button
-                              onClick={() => handleSendRequest(user.username)}
-                              className="bg-indigo-600 text-white px-2 py-1 rounded text-xs hover:bg-indigo-700 transition-colors"
-                            >
-                              Add Friend
-                            </button>
-                          )}
-                          {pendingRequests.sent.includes(user.username) && (
-                            <span className="text-yellow-500 text-xs">Request Sent</span>
-                          )}
-                          {friends.includes(user.username) && (
-                            <span className="text-green-500 text-xs">Friend</span>
-                          )}
+                          <div>
+                            {!friends.includes(user.username) &&
+                              !pendingRequests.sent.includes(user.username) &&
+                              user.username !== currentUser?.username && (
+                                <button
+                                  onClick={() => handleSendRequest(user.username)}
+                                  className="bg-indigo-600 text-white px-2 py-1 rounded text-xs hover:bg-indigo-700 transition-colors"
+                                >
+                                  Add Friend
+                                </button>
+                              )}
+                            {pendingRequests.sent.includes(user.username) && (
+                              <span className="text-yellow-500 text-xs">Request Sent</span>
+                            )}
+                            {friends.includes(user.username) && (
+                              <span className="text-green-500 text-xs">Friend</span>
+                            )}
+                          </div>
                         </li>
                       ))}
                     </ul>
