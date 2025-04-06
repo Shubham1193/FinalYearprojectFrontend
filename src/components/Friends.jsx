@@ -157,7 +157,7 @@ const FriendsList = () => {
   // Cancel or reject a friend request
   const handleCancelRequest = async (user) => {
     try {
-      const response = await fetch('hhttps://finalyearprojectbackend-2lbw.onrender.com/api/user/friend-request/cancel', {
+      const response = await fetch('https://finalyearprojectbackend-2lbw.onrender.com/api/user/friend-request/cancel', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ sender: currentUser.username, receiver: user }),
