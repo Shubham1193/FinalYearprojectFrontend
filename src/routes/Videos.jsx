@@ -5,6 +5,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { clearRoomId } from '../redux/room/roomSlice';
 import { setPeerId, setPeerInstance, clearPeerState } from '../redux/peer/peerSlice';
 import Peer from 'peerjs';
+import { Mic, MicOff, Video, VideoOff, LogOut } from 'lucide-react';
 
 const Videos = () => {
     // Redux state for room and peer information
@@ -13,7 +14,7 @@ const Videos = () => {
 
     // Refs for local and remote video elements
     const remoteVideoRef = useRef(null);
-    const currentUserVideoRef = useRef(null); // Fixed: Added null initialization for consistency
+    const currentUserVideoRef = useRef(null);
 
     // Hooks for socket, navigation, and dispatching actions
     const socket = useSocket();
@@ -21,8 +22,8 @@ const Videos = () => {
     const dispatch = useDispatch();
 
     // State to track mute and video status
-    const [isMuted, setIsMuted] = useState(false); // Tracks if audio is muted
-    const [isVideoOff, setIsVideoOff] = useState(false); // Tracks if video is off
+    const [isMuted, setIsMuted] = useState(false); 
+    const [isVideoOff, setIsVideoOff] = useState(false);
 
     // Effect to handle peer connection and media stream setup
     useEffect(() => {
@@ -195,24 +196,27 @@ const Videos = () => {
             <div className='mt-4 flex space-x-4'>
                 {/* Mute/Unmute button */}
                 <button
-                    className={`border-2 p-2 rounded-xl ${isMuted ? 'bg-red-500' : 'bg-green-500'} text-white`}
+                    className={`flex items-center justify-center border-2 p-2 rounded-xl ${isMuted ? 'bg-red-500' : 'bg-green-500'} text-white w-12 h-12`}
                     onClick={toggleMute}
+                    title={isMuted ? 'Unmute' : 'Mute'}
                 >
-                    {isMuted ? 'Unmute' : 'Mute'}
+                    {isMuted ? <MicOff size={24} /> : <Mic size={24} />}
                 </button>
                 {/* Video on/off button */}
                 <button
-                    className={`border-2 p-2 rounded-xl ${isVideoOff ? 'bg-red-500' : 'bg-green-500'} text-white`}
+                    className={`flex items-center justify-center border-2 p-2 rounded-xl ${isVideoOff ? 'bg-red-500' : 'bg-green-500'} text-white w-12 h-12`}
                     onClick={toggleVideo}
+                    title={isVideoOff ? 'Turn On Video' : 'Turn Off Video'}
                 >
-                    {isVideoOff ? 'Turn On Video' : 'Turn Off Video'}
+                    {isVideoOff ? <VideoOff size={24} /> : <Video size={24} />}
                 </button>
                 {/* Leave room button */}
                 <button
-                    className='border-2 p-2 rounded-xl bg-white'
+                    className='flex items-center justify-center border-2 p-2 rounded-xl bg-white w-12 h-12'
                     onClick={leaveRoom}
+                    title='Leave Room'
                 >
-                    Leave Room
+                    <LogOut size={24} color="#000" />
                 </button>
             </div>
         </div>

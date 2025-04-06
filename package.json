@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@codeium/react-code-editor": "^1.0.12",
+    "@google/generative-ai": "^0.24.0",
     "@monaco-editor/react": "^4.6.0",
     "@reduxjs/toolkit": "^2.2.6",
     "axios": "^1.7.2",
@@ -19,6 +20,7 @@
     "flowbite-react": "^0.10.1",
     "fs": "^0.0.1-security",
     "global": "^4.4.0",
+    "lucide-react": "^0.487.0",
     "peerjs": "^1.5.4",
     "prismjs": "^1.29.0",
     "process": "^0.11.10",
@@ -35,7 +37,10 @@
     "simple-peer": "^9.11.1",
     "socket.io-client": "^4.7.5",
     "styled-components": "^6.1.11",
-    "uuid": "^10.0.0"
+    "uuid": "^10.0.0",
+    "y-monaco": "^0.1.6",
+    "y-webrtc": "^10.3.0",
+    "yjs": "^13.6.24"
   },
   "devDependencies": {
     "@types/react": "^18.2.66",
