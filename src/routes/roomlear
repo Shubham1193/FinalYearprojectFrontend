@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState , useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import Editor from "@monaco-editor/react";
 import axios from "axios";
@@ -8,8 +8,6 @@ import Videos from "./Videos";
 import { useSelector } from "react-redux";
 import Friends from "../components/Friends";
 import * as Diff from "diff";
-import "./Room.css";
-import Hints from "../components/Hints";
 
 const Room = () => {
   const location = useLocation();
@@ -27,13 +25,8 @@ const Room = () => {
   const [selectedTestCase, setSelectedTestCase] = useState(0);
   const lastCodeRef = useRef(""); // Track the last code state
   const editorRef = useRef(null); // Ref to Monaco Editor instance
-  const isRemoteUpdateRef = useRef(false); // Flag to track remote updates
-  const [remoteCursor, setRemoteCursor] = useState(null);
-  const cursorWidgetRef = useRef(null);
-  const [hintDesc , setHintdesc] = useState("")
 
   const options = { fontSize };
-
 
   // Function to set default code based on language and question
   const setDefaultCode = (lang, q) => {
@@ -44,63 +37,43 @@ const Room = () => {
         : q.defaultcode.java.user.join("\n");
       console.log("Setting code to:", defaultCode);
       setCode(defaultCode);
-      lastCodeRef.current = defaultCode; // Update the lastCodeRef when setting default code
     } else {
       console.log("No question provided, code not updated");
     }
   };
 
+
   const handleRemoteCodeUpdate = ({ delta }) => {
-    try {
-      // Set flag to prevent emitting another update
-      isRemoteUpdateRef.current = true;
-      
-      const newCode = Diff.applyPatch(lastCodeRef.current, delta);
-      
-      if (newCode !== false && newCode !== lastCodeRef.current) {
-        console.log("Applying remote code update");
-        
-        // Update the state and refs
-        setCode(newCode);
-        lastCodeRef.current = newCode;
-        
-        // Update editor content if editor is available
-        if (editorRef.current) {
-          const editor = editorRef.current;
-          const selection = editor.getSelection(); // Preserve cursor/selection
-          editor.setValue(newCode); // Update editor without full refresh
-          editor.setSelection(selection); // Restore cursor/selection
-        }
-      }
-    } catch (error) {
-      console.error("Error applying remote code update:", error);
-    } finally {
-      // Reset the flag after a short delay to allow state updates to complete
-      setTimeout(() => {
-        isRemoteUpdateRef.current = false;
-      }, 0);
+    const newCode = Diff.applyPatch(lastCodeRef.current, delta);
+    console.log(newCode)
+    if (newCode !== false && newCode !== code) {
+      const editor = editorRef.current;
+      const selection = editor.getSelection(); // Preserve cursor/selection
+      setCode(newCode);
+      lastCodeRef.current = newCode;
+      editor.setValue(newCode); // Update editor without full refresh
+      editor.setSelection(selection); // Restore cursor/selection
     }
   };
 
   // Mount editor and store reference
- // Handle editor mount and attach cursor listeners
- const handleEditorDidMount = (editor, monaco) => {
-  editorRef.current = editor;
+  const handleEditorDidMount = (editor) => {
+    editorRef.current = editor;
+  };
 
-  // Listen to cursor position changes
-  editor.onDidChangeCursorPosition((e) => {
-    const position = editor.getPosition();
-    const selection = editor.getSelection();
-    socket.emit("cursor-update", { id, position, selection });
-  });
-};
 
   // Single useEffect for initialization and socket setup
   useEffect(() => {
     setQuestion(ques);
-    setHintdesc(ques?.description || "");
     setDefaultCode(userLang, ques);
     socket.emit("question", { id, ques });
+
+    // const handleUpdatedCode = (newCode) => {
+    //   if (newCode !== code) { // Prevent feedback loop
+    //     setCode(newCode);
+    //     console.log(newCode)
+    //   }
+    // };
 
     const handleCodeResult = (data) => {
       setResult(JSON.parse(data));
@@ -119,51 +92,62 @@ const Room = () => {
       socket.off("syncQuestion", handleQuestionId);
       socket.off("clear-res");
       socket.off("submission-results");
-      socket.off("languageChangeSync", handleLanguageChange);
+      socket.off("languageChange", handleLanguageChange);
     };
   }, [id, ques, socket]);
-
+  // why that earlier question arise . what i can understand other user still had ques and this obove use effect
+  // only runs onece per qeution and it handleLangaugechage quetion is still null . only runs onse and still null
+  // if langauge as paremet in above it sets the question again to ques so seperate useeffect 
   useEffect(() => {
-    setDefaultCode(userLang, question);
-  }, [userLang, question]);
+    setDefaultCode(userLang, question)
+  }, [userLang])
+
+  // in above userLnage change due to socket so above useeffect run 
+
+
+  // on top of this add yjs only sync par notheing else
+
 
   const handleLanguageChange = ({ language }) => {
-    console.log("received language change");
+    console.log("receivd langate")
     setUserLang(language);
   };
 
   const handleQuestionId = (newQues) => {
     setQuestion(newQues);
-    setHintdesc(newQues.description)
-    console.log("question received");
+    console.log("question recienved")
     setDefaultCode(userLang, newQues);
   };
 
   // Sync language change with other users
   const handleLanguageChangeLocal = (newLang) => {
-    console.log("language changed locally");
+    console.log("langauge chaned locally")
     setUserLang(newLang);
+    if (question) {
+      setDefaultCode(newLang, question);
+    }
     socket.emit("languageChange", { id, language: newLang, question: question });
-    console.log("called emit to change language");
+    console.log("called emit to change language")
   };
 
   // Handle code changes from editor
+  // const handleCodeChange = (newCode) => {
+  //   setCode(newCode);
+  //   socket.emit("update-code", { code: newCode, id });
+  // };
   const handleCodeChange = (newCode) => {
-    // Only emit updates for local changes, not remote ones
-    if (!isRemoteUpdateRef.current) {
-      const delta = Diff.createPatch("code", lastCodeRef.current, newCode);
-      setCode(newCode);
-      lastCodeRef.current = newCode;
-      socket.emit("update-code", { delta, id });
-    }
+    const delta = Diff.createPatch("code", lastCodeRef.current, newCode);
+    setCode(newCode);
+    lastCodeRef.current = newCode;
+    socket.emit("update-code", { delta, id });
   };
 
   const handleSubmit = async () => {
     socket.emit("clear-res", { id });
 
     const hiddenCode = userLang === "python"
-      ? question.defaultcode.python.hidden.join("\n") || ""
-      : question.defaultcode.java.hidden.join("\n") || "";
+      ? ques.defaultcode.python.hidden.join("\n") || ""
+      : ques.defaultcode.java.hidden.join("\n") || "";
 
     const fullCode = `${code}\n${hiddenCode}`.trim();
     const data = { fullCode, userLang, id, question };
@@ -179,73 +163,6 @@ const Room = () => {
     navigate("/problems");
   };
 
-  const handleEditorChange = (newCode, event) => {
-    handleCodeChange(newCode); // Existing diff or OT logic
-    const position = editorRef.current.getPosition();
-    const selection = editorRef.current.getSelection();
-    socket.emit("cursor-update", { id, position, selection });
-  };
-
- // Modified function to handle incoming cursor updates
-const handleRemoteCursorUpdate = ({ position, selection }) => {
-  console.log( position)
-  if (position) {
-    setRemoteCursor({ position, selection });
-  }
-};
-
-  useEffect(() => {
-    socket.on("cursor-update", handleRemoteCursorUpdate);
-    return () => socket.off("cursor-update");
-  }, [socket]);
-
-  // Render cursors in editor (custom overlay or Monaco decorations)
- // In your useEffect for rendering the cursor
-// Modify your cursor rendering useEffect
-const updateCursorWidget = (position) => {
-  const editor = editorRef.current;
-  if (!editor || !position) return;
-
-  // Remove existing widget
-  if (cursorWidgetRef.current) {
-    editor.removeContentWidget(cursorWidgetRef.current);
-  }
-
-  // Create a new cursor element
-  const cursorElement = document.createElement('div');
-  cursorElement.className = 'remote-cursor-widget';
-  
-  // Create the widget
-  cursorWidgetRef.current = {
-    getId: () => 'remote-cursor',
-    getDomNode: () => cursorElement,
-    getPosition: () => ({
-      position: {
-        lineNumber: position.lineNumber,
-        column: position.column
-      },
-      preference: [monaco.editor.ContentWidgetPositionPreference.EXACT]
-    })
-  };
-
-  // Add the widget to the editor
-  editor.addContentWidget(cursorWidgetRef.current);
-};
-
-// Update widget when remote cursor changes
-useEffect(() => {
-  if (remoteCursor?.position) {
-    updateCursorWidget(remoteCursor.position);
-  }
-  
-  // Clean up when unmounting
-  return () => {
-    const editor = editorRef.current;
-    if (editor && cursorWidgetRef.current) {
-      editor.removeContentWidget(cursorWidgetRef.current);
-    }
-  };
-}, [remoteCursor]);
   return (
     <div className="min-h-screen overflow-hidden bg-[#1A1A2E]">
       <div className="h-[8vh] w-full">
@@ -340,7 +257,7 @@ useEffect(() => {
               theme={userTheme}
               language={userLang}
               value={code}
-              onChange={handleEditorChange}
+              onChange={handleCodeChange}
               onMount={handleEditorDidMount}
               options={options}
             />
@@ -354,13 +271,12 @@ useEffect(() => {
                   <button
                     key={index}
                     onClick={() => setSelectedTestCase(index)}
-                    className={`px-3 py-1 mr-2 rounded-lg flex-shrink-0 ${
-                      selectedTestCase === index
+                    className={`px-3 py-1 mr-2 rounded-lg flex-shrink-0 ${selectedTestCase === index
                         ? "bg-blue-600 text-white"
                         : result.testCase[index].expectedOutput === result.testCase[index].output
                           ? "bg-green-900 text-white"
                           : "bg-red-900 text-white"
-                    }`}
+                      }`}
                   >
                     Test {index + 1}
                   </button>
@@ -370,12 +286,11 @@ useEffect(() => {
 
             {result?.testCase && result.testCase.length > 0 ? (
               <div
-                className={`border rounded-xl p-3 mb-2 ${
-                  result.testCase[selectedTestCase].expectedOutput ===
+                className={`border rounded-xl p-3 mb-2 ${result.testCase[selectedTestCase].expectedOutput ===
                     result.testCase[selectedTestCase].output
                     ? "border-green-500 bg-[#1f2d1f]"
                     : "border-red-500 bg-[#2d1f1f]"
-                }`}
+                  }`}
               >
                 <div className="text-m">
                   Test Case {selectedTestCase + 1}:{" "}
@@ -425,7 +340,6 @@ useEffect(() => {
           <Videos />
         </div>
       </div>
-      <Hints  description={hintDesc} code = {code} />
       <Friends />
     </div>
   );

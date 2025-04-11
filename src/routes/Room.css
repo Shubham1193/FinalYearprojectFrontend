@@ -1,0 +1,13 @@
+.remote-cursor-widget {
+    position: absolute;
+    width: 2px;
+    height: 18px; 
+    background-color: #ff0000;
+    z-index: 20;
+    animation: blink 1s infinite;
+  }
+  
+  @keyframes blink {
+    50%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+  }

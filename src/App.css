@@ -1,0 +1,6 @@
+/* src/index.css */
+.cursor {
+    background: rgba(0, 255, 0, 0.5); /* Green with 50% opacity */
+    width: 2px;
+    height: 1em;
+  }

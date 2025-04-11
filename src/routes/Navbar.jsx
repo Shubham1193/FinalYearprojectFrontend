@@ -4,14 +4,14 @@ import Select from 'react-select';
 const Navbar = ({
   id,
   userLang,
-  setUserLang,
+  setUserLangCustom,
   userTheme,
   setUserTheme,
   fontSize,
   setFontSize,
   submit,
   searchQuestion,
-  roomid
+  roomId,
 }) => {
   const languages = [
     { value: "python", label: "Python" },
@@ -29,7 +29,7 @@ const Navbar = ({
       <div className="flex items-center space-x-4">
         <Select
           value={{ value: userLang, label: userLang }}
-          onChange={(option) => setUserLang(option.value)}
+          onChange={(option) => setUserLangCustom(option.value)}
           options={languages}
           classNamePrefix="select"
           isSearchable={false}
@@ -73,7 +73,7 @@ const Navbar = ({
     
       <div className="flex items-center space-x-4">
         <div className="flex justify-center items-center bg-gray-800 text-white px-4 py-2 rounded-lg">
-          <p>Room Id : {roomid}</p>
+          <p>Room Id : {roomId}</p>
         </div>
       </div>
     </div>
